@@ -19,17 +19,17 @@ RUN useradd -m $USER && chpasswd $USER:'pwd123' && \
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
     mkdir -p /home/$USER/.ssh && \
     ssh-keyscan github.com >> /home/$USER/.ssh/known_hosts && \
-    chown -R $USER:$USER /home/$USER
+    chown -R $USER:$USER /home/$USER	
 
-COPY logo.txt /home/$USER
-COPY .bashrc /home/$USER
-COPY id_rsa /home/$USER/.ssh
+COPY logo.txt /home/$USER/
+COPY .bashrc /home/$USER/
+COPY id_rsa /home/$USER/.ssh/
 
 # Clone the conf files into the docker container
-#RUN sshpass -p 'n0xyt4' git clone git@github.com:lachatak/gatling-cometd.git
+#RUN git clone git@github.com:lachatak/gatling-cometd.git
 
-USER lachatak
-WORKDIR /home/lachatak
+USER DOCKER_FOR
+WORKDIR /home/DOCKER_FOR
 
 # Define default command.
 CMD ["bash"]
