@@ -8,27 +8,22 @@ FROM       ubuntu:latest
 # Format: MAINTAINER Name <email@addr.ess>
 MAINTAINER Kaloz <krisztian.lachata@gmail.com>
 
-ENV USER lachatak
+#Generator modifies this for the final user
+ENV USER DOCKER_FOR
 
 #Installation: tools
-RUN apt-get update && apt-get install -y git curl fortune cowsay
+RUN apt-get update && apt-get install -y git curl
 
+#Add new user
 RUN useradd -m $USER && chpasswd $USER:'pwd123' && \
     echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
-    mkdir -p /home/$USER/.ssh
+    mkdir -p /home/$USER/.ssh && \
+    ssh-keyscan github.com >> /home/$USER/.ssh/known_hosts && \
+    chown -R $USER:$USER /home/$USER
 
-# Setup SSH permissions
-RUN ssh-keyscan github.com >> /home/$USER/.ssh/known_hosts
-
-# arrange ssh key
-COPY id_rsa /home/$USER/.ssh/id_rsa
-COPY logo.txt /home/$USER/logo.txt
-
-RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/g' /home/$USER/.bashrc && \
-    sed -i '/# for examples/a cat /home/$USER/logo.txt' /home/$USER/.bashrc
-    #sed -i '/# for examples/a PATH=$PATH:/usr/games\nfortune | cowsay -pn' /home/$USER/.bashrc
-
-RUN chown -R $USER:$USER /home/$USER
+COPY logo.txt /home/$USER
+COPY .bashrc /home/$USER
+COPY id_rsa /home/$USER/.ssh
 
 # Clone the conf files into the docker container
 #RUN sshpass -p 'n0xyt4' git clone git@github.com:lachatak/gatling-cometd.git
