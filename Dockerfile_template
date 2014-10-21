@@ -1,0 +1,40 @@
+# Dockerizing MongoDB: Dockerfile for building MongoDB images
+# Based on ubuntu:latest, installs MongoDB following the instructions from:
+# http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/
+
+# Format: FROM    repository[:version]
+FROM       ubuntu:latest
+
+# Format: MAINTAINER Name <email@addr.ess>
+MAINTAINER Kaloz <krisztian.lachata@gmail.com>
+
+ENV USER lachatak
+
+#Installation: tools
+RUN apt-get update && apt-get install -y git curl fortune cowsay
+
+RUN useradd -m $USER && chpasswd $USER:'pwd123' && \
+    echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+    mkdir -p /home/$USER/.ssh
+
+# Setup SSH permissions
+RUN ssh-keyscan github.com >> /home/$USER/.ssh/known_hosts
+
+# arrange ssh key
+COPY id_rsa /home/$USER/.ssh/id_rsa
+COPY logo.txt /home/$USER/logo.txt
+
+RUN sed -i 's/#force_color_prompt=yes/force_color_prompt=yes/g' /home/$USER/.bashrc && \
+    sed -i '/# for examples/a cat /home/$USER/logo.txt' /home/$USER/.bashrc
+    #sed -i '/# for examples/a PATH=$PATH:/usr/games\nfortune | cowsay -pn' /home/$USER/.bashrc
+
+RUN chown -R $USER:$USER /home/$USER
+
+# Clone the conf files into the docker container
+#RUN sshpass -p 'n0xyt4' git clone git@github.com:lachatak/gatling-cometd.git
+
+USER lachatak
+WORKDIR /home/lachatak
+
+# Define default command.
+CMD ["bash"]
