@@ -1,0 +1,14 @@
+#Install Scala
+RUN apt-get update && \
+    apt-get install -y libjansi-java && \
+    wget http://www.scala-lang.org/files/archive/scala-2.10.4.deb && \
+    dpkg -i scala-2.10.4.deb && \
+    apt-get update && \
+    apt-get install scala
+
+RUN wget http://dl.bintray.com/sbt/debian/sbt-0.13.5.deb && \
+    dpkg -i sbt-0.13.5.deb && \
+    apt-get update && \
+    apt-get install sbt
+
+SERVICES

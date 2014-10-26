@@ -1,6 +1,4 @@
-# Dockerizing MongoDB: Dockerfile for building MongoDB images
-# Based on ubuntu:latest, installs MongoDB following the instructions from:
-# http://docs.mongodb.org/manual/tutorial/install-mongodb-on-ubuntu/
+# Dockerizing Developer environment
 
 # Format: FROM    repository[:version]
 FROM       ubuntu:latest
@@ -10,26 +8,37 @@ MAINTAINER Kaloz <krisztian.lachata@gmail.com>
 
 #Generator modifies this for the final user
 ENV USER DOCKER_FOR
+ENV HOME /home/DOCKER_FOR
 
 #Installation: tools
-RUN apt-get update && apt-get install -y git curl
+RUN \
+  sed -i 's/# \(.*multiverse$\)/\1/g' /etc/apt/sources.list && \
+  apt-get update && \
+  apt-get -y upgrade && \
+  apt-get install -y build-essential && \
+  apt-get install -y software-properties-common && \
+  apt-get install -y byobu curl git htop man unzip vim wget && \
+  rm -rf /var/lib/apt/lists/*
 
 #Add new user
-RUN useradd -m $USER && chpasswd $USER:'pwd123' && \
-    echo "$USER ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers && \
+RUN useradd -m DOCKER_FOR -u 1000 -G sudo -s /bin/bash && \
+    echo $USER':pwd123' | chpasswd && \
+    echo "%sudo	ALL=(ALL:ALL) ALL" >> /etc/sudoers && \
     mkdir -p /home/$USER/.ssh && \
     ssh-keyscan github.com >> /home/$USER/.ssh/known_hosts && \
-    chown -R $USER:$USER /home/$USER	
+    chown -R $USER:$USER /home/$USER
 
-COPY logo.txt /home/$USER/
-COPY .bashrc /home/$USER/
-COPY id_rsa /home/$USER/.ssh/
+COPY user/logo.txt /home/$USER/
+COPY user/.bashrc /home/$USER/
 
-# Clone the conf files into the docker container
-#RUN git clone git@github.com:lachatak/gatling-cometd.git
+#Injected services go here
+SERVICES
 
-USER DOCKER_FOR
+VOLUME ["/home/DOCKER_FOR/Documents/workspaces", "/home/DOCKER_FOR/.ssh/id_rsa"]
 WORKDIR /home/DOCKER_FOR
+USER DOCKER_FOR
+
+#IDE
 
 # Define default command.
 CMD ["bash"]

@@ -1,0 +1,10 @@
+#Intellij
+WORKDIR /home/DOCKER_FOR/Documents/apps
+RUN curl -L http://download.jetbrains.com/idea/ideaIC-13.1.5.tar.gz | tar xz
+RUN mv idea* idea
+
+#RUN apt-get install -y libxi6
+#RUN apt-get install -y libxtst6
+#RUN apt-get install -y libxrender1
+
+SERVICES
